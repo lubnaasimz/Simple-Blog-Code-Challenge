@@ -1,0 +1,19 @@
+#container {
+  display: flex;
+  gap: 2rem;
+}
+
+#post-list {
+  width: 30%;
+  border-right: 1px solid #ccc;
+}
+
+#post-list div {
+  cursor: pointer;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+#post-detail {
+  width: 70%;
+}
