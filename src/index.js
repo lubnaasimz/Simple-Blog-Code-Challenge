@@ -1,73 +1,54 @@
 const baseURL = "http://localhost:3000/posts";
 let currentPostId = null;
 
-function main() {
-  displayPosts();
-  addNewPostListener();
-}
-document.addEventListener("DOMContentLoaded", main);
-
 function displayPosts() {
   fetch(baseURL)
     .then(res => res.json())
     .then(posts => {
-      const postList = document.getElementById("post-list");
-      postList.innerHTML = "";
+      const list = document.getElementById("post-list");
+      list.innerHTML = "";
       posts.forEach(post => {
-        const div = document.createElement("div");
-        div.textContent = post.title;
-        div.style.cursor = "pointer";
-        div.addEventListener("click", () => handlePostClick(post.id));
-        postList.appendChild(div);
+        const postItem = document.createElement("div");
+        postItem.textContent = post.title;
+        postItem.style.cursor = "pointer";
+        postItem.addEventListener("click", () => handlePostClick(post));
+        list.appendChild(postItem);
       });
 
       if (posts.length > 0) {
-        handlePostClick(posts[0].id);
+        handlePostClick(posts[0]);
       }
-    });
+    })
+    .catch(error => console.error("Error loading posts:", error));
 }
 
-function handlePostClick(id) {
-  fetch(`${baseURL}/${id}`)
-    .then(res => res.json())
-    .then(post => {
-      currentPostId = id;
-      const detail = document.getElementById("post-detail");
-      detail.innerHTML = `
-        <h2>${post.title}</h2>
-        <p>${post.content}</p>
-        <small><em>by ${post.author}</em></small><br><br>
-        <button id="edit-btn">Edit</button>
-        <button id="delete-btn">Delete</button>
-      `;
-
-      document.getElementById("edit-title").value = post.title;
-      document.getElementById("edit-content").value = post.content;
-
-      document.getElementById("edit-btn").addEventListener("click", () => {
-        document.getElementById("edit-post-form").classList.remove("hidden");
-      });
-
-      document.getElementById("delete-btn").addEventListener("click", () => {
-        deletePost(post.id);
-      });
-    });
+function handlePostClick(post) {
+  currentPostId = post.id;
+  const detail = document.getElementById("post-detail");
+  detail.innerHTML = `
+    <h3>${post.title}</h3>
+    <p>${post.content}</p>
+    <p><strong>Author:</strong> ${post.author}</p>
+    <button onclick="startEdit()">Edit</button>
+    <button onclick="deletePost()">Delete</button>
+  `;
 }
 
 function addNewPostListener() {
   const form = document.getElementById("new-post-form");
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+
     const title = document.getElementById("new-title").value;
     const content = document.getElementById("new-content").value;
     const author = document.getElementById("new-author").value;
 
-    const newPost = { title, content, author };
+    const post = { title, content, author };
 
     fetch(baseURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newPost)
+      body: JSON.stringify(post)
     })
       .then(res => res.json())
       .then(() => {
@@ -77,39 +58,77 @@ function addNewPostListener() {
   });
 }
 
-const editForm = document.getElementById("edit-post-form");
-editForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const updatedTitle = document.getElementById("edit-title").value;
-  const updatedContent = document.getElementById("edit-content").value;
-
-  fetch(`${baseURL}/${currentPostId}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      title: updatedTitle,
-      content: updatedContent
-    })
-  })
+function startEdit() {
+  fetch(`${baseURL}/${currentPostId}`)
     .then(res => res.json())
-    .then(() => {
-      displayPosts();
-      handlePostClick(currentPostId);
-      editForm.classList.add("hidden");
+    .then(post => {
+      document.getElementById("edit-title").value = post.title;
+      document.getElementById("edit-content").value = post.content;
+      document.getElementById("edit-post-form").classList.remove("hidden");
     });
-});
+}
 
-document.getElementById("cancel-edit").addEventListener("click", () => {
-  editForm.classList.add("hidden");
-});
-
-function deletePost(id) {
-  fetch(`${baseURL}/${id}`, {
+function deletePost() {
+  fetch(`${baseURL}/${currentPostId}`, {
     method: "DELETE"
-  })
-    .then(() => {
+  }).then(() => {
+    document.getElementById("post-detail").innerHTML = "";
+    displayPosts();
+  });
+}
+
+function addEditPostListener() {
+  const form = document.getElementById("edit-post-form");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const title = document.getElementById("edit-title").value;
+    const content = document.getElementById("edit-content").value;
+
+    fetch(`${baseURL}/${currentPostId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, content })
+    }).then(() => {
+      form.classList.add("hidden");
       displayPosts();
-      document.getElementById("post-detail").innerHTML = "<p>Post deleted.</p>";
-      document.getElementById("edit-post-form").classList.add("hidden");
     });
+  });
+
+  document.getElementById("cancel-edit").addEventListener("click", () => {
+    form.classList.add("hidden");
+  });
+}
+
+function main() {
+  displayPosts();
+  addNewPostListener();
+  addEditPostListener();
+}
+
+document.addEventListener("DOMContentLoaded", main);
+
+
+function displayPosts() {
+  console.log("Calling displayPosts...");
+  fetch(baseURL)
+    .then(res => res.json())
+    .then(posts => {
+      console.log("Received posts:", posts);  // <- DEBUG LOG
+
+      const list = document.getElementById("post-list");
+      list.innerHTML = "";
+
+      posts.forEach(post => {
+        const postItem = document.createElement("div");
+        postItem.textContent = post.title;
+        postItem.style.cursor = "pointer";
+        postItem.addEventListener("click", () => handlePostClick(post));
+        list.appendChild(postItem);
+      });
+
+      if (posts.length > 0) {
+        handlePostClick(posts[0]);
+      }
+    })
+    .catch(error => console.error("Error loading posts:", error));
 }

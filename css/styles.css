@@ -1,19 +1,14 @@
-#container {
-  display: flex;
-  gap: 2rem;
+body {
+  font-family: sans-serif;
+  margin: 20px;
 }
 
-#post-list {
-  width: 30%;
-  border-right: 1px solid #ccc;
+input, textarea {
+  display: block;
+  margin-bottom: 10px;
+  width: 300px;
 }
 
-#post-list div {
-  cursor: pointer;
-  padding: 8px;
-  border-bottom: 1px solid #eee;
-}
-
-#post-detail {
-  width: 70%;
+.hidden {
+  display: none;
 }

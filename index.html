@@ -1,32 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Simple Blog</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <h1>My Blog</h1>
 
-  <div id="container">
+  <div id="post-list"></div>
 
-    <div id="post-list"></div>
+  <div id="post-detail"></div>
 
-    <div id="post-detail"></div>
-  </div>
-
+  <h2>Add New Post</h2>
   <form id="new-post-form">
-    <h2>Add New Post</h2>
-    <input type="text" id="new-title" placeholder="Title" required><br>
-    <textarea id="new-content" placeholder="Content" required></textarea><br>
-    <input type="text" id="new-author" placeholder="Author" required><br>
+    <input type="text" id="new-title" placeholder="Title" required /><br />
+    <textarea id="new-content" placeholder="Content" required></textarea><br />
+    <input type="text" id="new-author" placeholder="Author" required /><br />
     <button type="submit">Add Post</button>
   </form>
 
+  <h2>Edit Post</h2>
   <form id="edit-post-form" class="hidden">
-    <h3>Edit Post</h3>
-    <input type="text" id="edit-title" placeholder="Edit Title" required><br>
-    <textarea id="edit-content" placeholder="Edit Content" required></textarea><br>
+    <input type="text" id="edit-title" placeholder="Edit Title" /><br />
+    <textarea id="edit-content" placeholder="Edit Content"></textarea><br />
     <button type="submit">Update</button>
     <button type="button" id="cancel-edit">Cancel</button>
   </form>
