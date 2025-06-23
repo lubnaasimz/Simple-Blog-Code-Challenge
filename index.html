@@ -37,7 +37,25 @@
         <button type="submit">Add Post</button>
       </form>
     </div>
-  </div>
+</div>
+<div id="post-detail" class="post-detail">
+  <h2>Post Details</h2>
+  <div id="post-detail-content"></div>
+  <form id="edit-post-form" class="hidden">
+    <h4>Update Post Details</h4>
+    <label for="edit-title">Title:</label>
+    <input type="text" name="title" id="edit-title" required>
+    <label for="edit-content">Content:</label>
+    <textarea name="content" id="edit-content" rows="5" required></textarea>
+    <label for="edit-author">Author:</label>
+    <input type="text" name="author" id="edit-author" required>
+    <button type="submit">Update Post</button>
+    <button type="button" id="cancel-edit">Cancel</button>
+  </form>
+  <button id="edit-button">Edit Post</button>
+  <button id="delete-button">Delete Post</button>
+</div>
+
 
   <script src="src/index.js"></script>
 </body>
