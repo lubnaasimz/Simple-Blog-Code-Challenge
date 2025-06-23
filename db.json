@@ -2,16 +2,15 @@
   "posts": [
     {
       "id": 1,
-      "title": "My First Blog Post",
-      "content": "This is the first blog post content.",
-      "author": "Lubnaa"
+      "title": "First Post",
+      "content": "This is my first blog post!",
+      "author": "John Doe"
     },
     {
       "id": 2,
-      "title": "Another Post",
-      "content": "Here's another post!!.",
-      "author": "Lubnaa Simalo"
+      "title": "Second Post",
+      "content": "Another interesting post about web development.",
+      "author": "Jane Smith"
     }
   ]
 }
-
