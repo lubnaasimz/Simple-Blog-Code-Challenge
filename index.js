@@ -1,173 +1,109 @@
 
-function main() {
-  displayPosts();
-  addNewPostListener();
-}
+const baseURL = "http://localhost:3000/posts";
+let currentPostId = null;
 
 function displayPosts() {
-  const postList = document.getElementById('post-list');
-  
-  fetch('http://localhost:3000/posts')
-    .then(response => response.json())
+  fetch(baseURL)
+    .then(res => res.json())
     .then(posts => {
-    
-      postList.innerHTML = '<h2>Posts</h2>';
-      
+      const list = document.getElementById("post-list");
+      list.innerHTML = "";
       posts.forEach(post => {
-        const postItem = document.createElement('div');
-        postItem.className = 'post-item';
+        const postItem = document.createElement("div");
         postItem.textContent = post.title;
-        postItem.dataset.id = post.id;
-        
-        postItem.addEventListener('click', () => handlePostClick(post.id));
-        
-        postList.appendChild(postItem);
+        postItem.style.cursor = "pointer";
+        postItem.addEventListener("click", () => handlePostClick(post));
+        list.appendChild(postItem);
       });
-      
+
       if (posts.length > 0) {
-        handlePostClick(posts[0].id);
+        handlePostClick(posts[0]);
       }
     })
-    .catch(error => console.error('Error fetching posts:', error));
+    .catch(error => console.error("Error loading posts:", error));
 }
 
-function handlePostClick(postId) {
-  fetch(`http://localhost:3000/posts/${postId}`)
-    .then(response => response.json())
-    .then(post => {
-      const postDetail = document.getElementById('post-detail');
-      postDetail.innerHTML = `
-        <h2>${post.title}</h2>
-        <p><strong>Author:</strong> ${post.author}</p>
-        <p><strong>Content:</strong></p>
-        <p>${post.content}</p>
-      `;
-    })
-    .catch(error => console.error('Error fetching post details:', error));
+function handlePostClick(post) {
+  currentPostId = post.id;
+  const detail = document.getElementById("post-detail");
+  detail.innerHTML = `
+    <h3>${post.title}</h3>
+    <p>${post.content}</p>
+    <p><strong>Author:</strong> ${post.author}</p>
+    <button onclick="startEdit()">Edit</button>
+    <button onclick="deletePost()">Delete</button>
+  `;
 }
 
 function addNewPostListener() {
-  const form = document.getElementById('new-post-form');
-  
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    
-    const title = document.getElementById('title').value;
-    const content = document.getElementById('content').value;
-    const author = document.getElementById('author').value;
-    
-    const newPost = {
-      title,
-      content,
-      author
-    };
-    
-    fetch('http://localhost:3000/posts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newPost),
+  const form = document.getElementById("new-post-form");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const title = document.getElementById("new-title").value;
+    const content = document.getElementById("new-content").value;
+    const author = document.getElementById("new-author").value;
+
+    const post = { title, content, author };
+
+    fetch(baseURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(post)
     })
-    .then(response => response.json())
-    .then(() => {
-      displayPosts();
-      form.reset();
-    })
-    .catch(error => console.error('Error adding new post:', error));
+      .then(res => res.json())
+      .then(() => {
+        form.reset();
+        displayPosts();
+      });
   });
 }
 
-document.addEventListener('DOMContentLoaded', main);
-
-function handlePostClick(postId) {
-  fetch(`http://localhost:3000/posts/${postId}`)
-    .then(response => response.json())
+function startEdit() {
+  fetch(`${baseURL}/${currentPostId}`)
+    .then(res => res.json())
     .then(post => {
-      const postDetailContent = document.getElementById('post-detail-content');
-      postDetailContent.innerHTML = `
-        <h3>${post.title}</h3>
-        <p><strong>Author:</strong> ${post.author}</p>
-        <p><strong>Content:</strong></p>
-        <p>${post.content}</p>
-      `;
-      
-      postDetailContent.dataset.id = post.id;
-      
-      document.getElementById('edit-button').style.display = 'inline-block';
-      document.getElementById('delete-button').style.display = 'inline-block';
-      
-      document.getElementById('edit-button').onclick = () => showEditForm(post);
-      
-      document.getElementById('delete-button').onclick = () => deletePost(post.id);
-    })
-    .catch(error => console.error('Error fetching post details:', error));
+      document.getElementById("edit-title").value = post.title;
+      document.getElementById("edit-content").value = post.content;
+      document.getElementById("edit-post-form").classList.remove("hidden");
+    });
 }
 
-function showEditForm(post) {
-  const editForm = document.getElementById('edit-post-form');
-  const postDetailContent = document.getElementById('post-detail-content');
-
-
-  document.getElementById('edit-title').value = post.title;
-  document.getElementById('edit-content').value = post.content;
-  document.getElementById('edit-author').value = post.author;
-
-  editForm.classList.remove('hidden');
-  postDetailContent.classList.add('hidden');
-  
-  editForm.onsubmit = (event) => {
-    event.preventDefault();
-    updatePost(post.id);
-  };
-  
-  document.getElementById('cancel-edit').onclick = () => {
-    editForm.classList.add('hidden');
-    postDetailContent.classList.remove('hidden');
-  };
-}
-
-function updatePost(postId) {
-  const title = document.getElementById('edit-title').value;
-  const content = document.getElementById('edit-content').value;
-  const author = document.getElementById('edit-author').value;
-  
-  const updatedPost = {
-    title,
-    content,
-    author
-  };
-  
-  fetch(`http://localhost:3000/posts/${postId}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(updatedPost),
-  })
-  .then(response => response.json())
-  .then(() => {
+function deletePost() {
+  fetch(`${baseURL}/${currentPostId}`, {
+    method: "DELETE"
+  }).then(() => {
+    document.getElementById("post-detail").innerHTML = "";
     displayPosts();
-    handlePostClick(postId);
-    
-    document.getElementById('edit-post-form').classList.add('hidden');
-    document.getElementById('post-detail-content').classList.remove('hidden');
-  })
-  .catch(error => console.error('Error updating post:', error));
+  });
 }
 
-function deletePost(postId) {
-  if (confirm('Are you sure you want to delete this post?')) {
-    fetch(`http://localhost:3000/posts/${postId}`, {
-      method: 'DELETE',
-    })
-    .then(() => {
+function addEditPostListener() {
+  const form = document.getElementById("edit-post-form");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const title = document.getElementById("edit-title").value;
+    const content = document.getElementById("edit-content").value;
+
+    fetch(`${baseURL}/${currentPostId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, content })
+    }).then(() => {
+      form.classList.add("hidden");
       displayPosts();
-      document.getElementById('post-detail-content').innerHTML = '';
-      document.getElementById('edit-post-form').classList.add('hidden');
-      document.getElementById('edit-button').style.display = 'none';
-      document.getElementById('delete-button').style.display = 'none';
-    })
-    .catch(error => console.error('Error deleting post:', error));
-  }
+    });
+  });
+
+  document.getElementById("cancel-edit").addEventListener("click", () => {
+    form.classList.add("hidden");
+  });
 }
+
+function main() {
+  displayPosts();
+  addNewPostListener();
+  addEditPostListener();
+}
+
+document.addEventListener("DOMContentLoaded", main);

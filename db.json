@@ -11,6 +11,12 @@
       "title": "Second Post",
       "content": "Another interesting post about web development.",
       "author": "Jane Smith"
+    },
+    {
+      "title": "I love my life ",
+      "content": "asdfg",
+      "author": "Lubnaa Simalo",
+      "id": 3
     }
   ]
 }
